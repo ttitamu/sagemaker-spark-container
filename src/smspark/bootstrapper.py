@@ -49,7 +49,7 @@ class Bootstrapper:
     # and 2.10.0(https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common/2.10.0). However, it's not
     # needed in 3.2.1 (https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common/3.2.1)
     # TODO: use a map with spark version as the key to maintain the optional jars
-    OPTIONAL_JARS = {"jets3t-0.9.0.jar": HADOOP_PATH + "/lib"}
+    OPTIONAL_JARS = {"jets3t-0.9.0.jar": HADOOP_PATH + "/lib", "spark-sql_2.11-2.4.6-amzn-0.jar": "/opt/connector"}
 
     def __init__(self, resource_config: Dict[str, Any] = default_resource_config):
         logging.basicConfig(level=logging.INFO)

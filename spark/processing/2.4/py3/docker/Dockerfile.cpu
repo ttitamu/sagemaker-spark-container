@@ -100,6 +100,9 @@ COPY container-bootstrap-config /opt/container-bootstrap-config
 RUN chmod +x /opt/container-bootstrap-config/bootstrap.sh
 RUN /opt/container-bootstrap-config/bootstrap.sh
 
+COPY spark-sql_2.11-2.4.6-amzn-0.jar /opt/connector/spark-sql_2.11-2.4.6-amzn-0.jar
+COPY aws-lake-formation-spark2-connector-1.0.0-SNAPSHOT.jar /opt/connector/aws-lake-formation-spark2-connector-1.0.0-SNAPSHOT.jar
+
 # With this config, spark history server will not run as daemon, otherwise there
 # will be no server running and container will terminate immediately
 ENV SPARK_NO_DAEMONIZE TRUE

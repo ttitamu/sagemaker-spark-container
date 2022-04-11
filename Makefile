@@ -7,12 +7,13 @@ SHELL          := /bin/sh
 
 # Set variables if testing locally
 ifeq ($(IS_RELEASE_BUILD),)
-    SPARK_VERSION := 3.0
+    SPARK_VERSION := 3.1
     PROCESSOR := cpu
-    FRAMEWORK_VERSION := py37
+    FRAMEWORK_VERSION := py3
+    PYTHON_VERSION := 3.9
     SM_VERSION := 1.0
     USE_CASE := processing
-    BUILD_CONTEXT := ./spark/${USE_CASE}/${SPARK_VERSION}/py3
+    BUILD_CONTEXT := ./spark/${USE_CASE}/${SPARK_VERSION}/${FRAMEWORK_VERSION}
     AWS_PARTITION := aws
     AWS_DOMAIN := amazonaws.com
     export SPARK_ACCOUNT_ID=$(AWS_ACCOUNT_ID)
@@ -32,14 +33,18 @@ all: build test
 
 init:
 	pip install pipenv --upgrade
+	pipenv --rm
+	pipenv --python ${PYTHON_VERSION}
 	pipenv run pip install --upgrade pip
 	pipenv install
-	cp {Pipfile,Pipfile.lock,setup.py} ${BUILD_CONTEXT}
+	cp Pipfile ${BUILD_CONTEXT}
+	cp Pipfile.lock ${BUILD_CONTEXT}
+	cp setup.py ${BUILD_CONTEXT}
 
 # Builds and moves container python library into the Docker build context
 build-container-library: init
 	python setup.py bdist_wheel;
-	cp dist/*.whl ${BUILD_CONTEXT}
+	cp -- dist/*.whl ${BUILD_CONTEXT}
 
 install-container-library: init
 	pipenv run safety check  # https://github.com/pyupio/safety
@@ -80,24 +85,23 @@ test-local: install-container-library build-tests
 
 # Only runs sagemaker tests
 # Use pytest-parallel to run tests in parallel - https://pypi.org/project/pytest-parallel/
-test-sagemaker: build-tests
+test-sagemaker:
 	# Separate `pytest` invocation without parallelization:
 	# History server tests can't run in parallel since they use the same container name.
-	pipenv run pytest --reruns 3 -s -vv test/integration/history \
-	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
-	--spark-version=$(SPARK_VERSION) \
-	--framework-version=$(FRAMEWORK_VERSION) \
-	--role $(ROLE) \
-	--image_uri $(IMAGE_URI) \
-	--region ${REGION} \
-	--domain ${AWS_DOMAIN}
+# 	pipenv run pytest --reruns 3 -s -vv test/integration/history \
+# 	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
+# 	--spark-version=$(SPARK_VERSION) \
+# 	--framework-version=$(FRAMEWORK_VERSION) \
+# 	--role $(ROLE) \
+# 	--image_uri $(IMAGE_URI) \
+# 	--region ${REGION} \
+# 	--domain ${AWS_DOMAIN}
 	# OBJC_DISABLE_INITIALIZE_FORK_SAFETY: https://github.com/ansible/ansible/issues/32499#issuecomment-341578864
-	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES pipenv run pytest --workers auto --reruns 3 -s -vv test/integration/sagemaker \
+	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES pipenv run pytest --workers auto --reruns 3 -s -vv test/integration/sagemaker -k "test_sagemaker_pyspark_multinode"\
 	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
 	--spark-version=$(SPARK_VERSION) \
 	--framework-version=$(FRAMEWORK_VERSION) \
 	--role $(ROLE) \
-	--account-id ${INTEG_TEST_ACCOUNT} \
 	--image_uri $(IMAGE_URI) \
 	--region ${REGION} \
 	--domain ${AWS_DOMAIN}

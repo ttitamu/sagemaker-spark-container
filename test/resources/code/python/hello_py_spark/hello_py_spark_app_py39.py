@@ -21,6 +21,11 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import IntegerType
 
 if __name__ == "__main__":
+    print("Hello World, this is PySpark!")
+    d1 = {'k1':'k1 from d1', 'k2':'k2 from d1'}
+    d2 = {'k2':'k2 from d2', 'k3':'k3 from d2'}
+    print(d1 | d2)
+
     parser = argparse.ArgumentParser(description="inputs and outputs")
     parser.add_argument("--input", type=str, help="path to input data")
     parser.add_argument("--output", required=False, type=str, help="path to output data")

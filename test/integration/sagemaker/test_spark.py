@@ -92,18 +92,19 @@ def configuration() -> list:
 
 
 @pytest.mark.parametrize(
-    "config", [{"instance_count": 1}, {"instance_count": 2}],
+    "config", [{"instance_count": 1, "py_version": "py37"}, {"instance_count": 2, "py_version": "py39"}],
 )
 def test_sagemaker_pyspark_multinode(
     role, image_uri, configuration, sagemaker_session, region, sagemaker_client, config
 ):
     instance_count = config["instance_count"]
+    python_version = config["py_version"]
     print(f"Creating job with {instance_count} instance count")
     """Test that basic multinode case works on 32KB of data"""
     spark = PySparkProcessor(
         base_job_name="sm-spark-py",
-        image_uri=image_uri,
-        role=role,
+        image_uri="790336243319.dkr.ecr.us-west-2.amazonaws.com/sagemaker-spark:latest",
+        role="arn:aws:iam::790336243319:role/service-role/AmazonSageMaker-ExecutionRole-20200326T152157",
         instance_count=instance_count,
         instance_type="ml.c5.xlarge",
         max_runtime_in_seconds=1200,
@@ -122,6 +123,8 @@ def test_sagemaker_pyspark_multinode(
             body=body, desired_s3_uri=input_data_uri, sagemaker_session=sagemaker_session
         )
 
+
+    script_name = "hello_py_spark_app_py39.py" if python_version == "py39" else "hello_py_spark_app.py"
     spark.run(
         submit_app="test/resources/code/python/hello_py_spark/hello_py_spark_app.py",
         submit_py_files=["test/resources/code/python/hello_py_spark/hello_py_spark_udfs.py"],
