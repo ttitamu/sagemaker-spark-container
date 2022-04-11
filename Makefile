@@ -88,20 +88,21 @@ test-local: install-container-library build-tests
 test-sagemaker:
 	# Separate `pytest` invocation without parallelization:
 	# History server tests can't run in parallel since they use the same container name.
-# 	pipenv run pytest --reruns 3 -s -vv test/integration/history \
-# 	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
-# 	--spark-version=$(SPARK_VERSION) \
-# 	--framework-version=$(FRAMEWORK_VERSION) \
-# 	--role $(ROLE) \
-# 	--image_uri $(IMAGE_URI) \
-# 	--region ${REGION} \
-# 	--domain ${AWS_DOMAIN}
-	# OBJC_DISABLE_INITIALIZE_FORK_SAFETY: https://github.com/ansible/ansible/issues/32499#issuecomment-341578864
-	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES pipenv run pytest --workers auto --reruns 3 -s -vv test/integration/sagemaker -k "test_sagemaker_pyspark_multinode"\
+	pipenv run pytest --reruns 3 -s -vv test/integration/history \
 	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
 	--spark-version=$(SPARK_VERSION) \
 	--framework-version=$(FRAMEWORK_VERSION) \
 	--role $(ROLE) \
+	--image_uri $(IMAGE_URI) \
+	--region ${REGION} \
+	--domain ${AWS_DOMAIN}
+	# OBJC_DISABLE_INITIALIZE_FORK_SAFETY: https://github.com/ansible/ansible/issues/32499#issuecomment-341578864
+	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES pipenv run pytest --workers auto --reruns 3 -s -vv test/integration/sagemaker \
+	--repo=$(DEST_REPO) --tag=$(VERSION) --durations=0 \
+	--spark-version=$(SPARK_VERSION) \
+	--framework-version=$(FRAMEWORK_VERSION) \
+	--role $(ROLE) \
+	--account-id ${INTEG_TEST_ACCOUNT} \
 	--image_uri $(IMAGE_URI) \
 	--region ${REGION} \
 	--domain ${AWS_DOMAIN}
