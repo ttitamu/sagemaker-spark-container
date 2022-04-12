@@ -61,3 +61,6 @@ emr-spark-packages
 spark/processing/*/*/Pipfile*
 spark/processing/*/*/smspark*
 spark/processing/*/*/setup.py
+
+# build enviroment variables
+build_env.sh
