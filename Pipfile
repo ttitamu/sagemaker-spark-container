@@ -32,6 +32,7 @@ smspark = {editable = true, path = "."}
 importlib-metadata = "==3.7.3"
 pytest-parallel = "==0.1.0"
 pytest-rerunfailures = "10.0"
+awswrangler = "*"
 
 [requires]
 python_version = "3.7"
