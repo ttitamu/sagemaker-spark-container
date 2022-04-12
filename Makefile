@@ -30,17 +30,21 @@ all: build test
 
 # Downloads EMR packages. Skips if the tar file containing EMR packages has been made.
 
+	
 init:
-	pip install pipenv --upgrade
+	# pip install --user pipenv
 	pipenv run pip install --upgrade pip
 	pipenv install
 	cp Pipfile ${BUILD_CONTEXT}
 	cp Pipfile.lock ${BUILD_CONTEXT}
 	cp setup.py ${BUILD_CONTEXT}
 
+install_pip:
+	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+	pipenv run python get-pip.py --force-reinstall
 # Builds and moves container python library into the Docker build context
 build-container-library: init
-	python setup.py bdist_wheel;
+	pipenv run python setup.py bdist_wheel;
 	cp -- dist/*.whl ${BUILD_CONTEXT}
 
 install-container-library: init
